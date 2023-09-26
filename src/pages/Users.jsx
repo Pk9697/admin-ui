@@ -6,13 +6,18 @@ import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutl
 
 function Users() {
   const [users, setUsers] = useState([])
+  const [cntChecked, setCntChecked] = useState(0)
+
   useEffect(() => {
     const getUsers = () => {
       const url =
         'https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json'
       fetch(url)
         .then((res) => res.json())
-        .then((data) => setUsers(data))
+        .then((data) => {
+          const newUsers = data.map((user) => ({ ...user, isChecked: false }))
+          setUsers(newUsers)
+        })
     }
     getUsers()
   }, [])
@@ -24,8 +29,40 @@ function Users() {
     })
   }
 
+  const handleCheck = (e) => {
+    const toBeUpdatedId = e.target.value
+    if (e.target.checked) {
+      setCntChecked((prevCntChecked) => prevCntChecked + 1)
+    } else {
+      setCntChecked((prevCntChecked) => prevCntChecked - 1)
+    }
+    setUsers((currUsers) => {
+      return currUsers.map((user) => {
+        return user.id === toBeUpdatedId
+          ? { ...user, isChecked: e.target.checked }
+          : user
+      })
+    })
+  }
+
+  const handleDeleteSelected = () => {
+    setUsers((currUsers) => {
+      return currUsers.filter((user) => !user.isChecked)
+    })
+    setCntChecked(0)
+  }
+
   return (
     <div className="users-container">
+      <button
+        className="delete-btn"
+        type="button"
+        onClick={handleDeleteSelected}
+        disabled={cntChecked === 0}
+      >
+        Delete Selected
+      </button>
+
       <table className="table">
         <thead>
           <tr>
@@ -52,7 +89,8 @@ function Users() {
                     type="checkbox"
                     id="vehicle1"
                     name="vehicle1"
-                    value="Bike"
+                    value={id}
+                    onChange={handleCheck}
                   />
                 </td>
                 <td>{name}</td>
