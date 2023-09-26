@@ -41,6 +41,17 @@ button:disabled:hover{
 .table {
   width: 100%;
   border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+}
+
+.table__row{
+    display: flex;
+    gap: 1em;
+}
+
+.table__data{
+    flex:1;
 }
 
 .table__header {
@@ -49,7 +60,6 @@ button:disabled:hover{
 
 .table__action {
   display: flex;
-  /* justify-content: center; */
   align-items: center;
 }
 

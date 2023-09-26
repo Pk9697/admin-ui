@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import { useEffect, useState } from 'react'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined'
@@ -7,6 +5,7 @@ import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutl
 function Users() {
   const [users, setUsers] = useState([])
   const [cntChecked, setCntChecked] = useState(0)
+  const [selectAll, setSelectAll] = useState(false)
 
   useEffect(() => {
     const getUsers = () => {
@@ -22,6 +21,21 @@ function Users() {
     getUsers()
   }, [])
 
+  useEffect(() => {
+    setUsers((currUsers) => {
+      return currUsers.map((user) => {
+        return { ...user, isChecked: selectAll }
+      })
+    })
+  }, [selectAll])
+
+  useEffect(() => {
+    const cnt = users.reduce((acc, user) => {
+      return user.isChecked ? acc + 1 : acc
+    }, 0)
+    setCntChecked(cnt)
+  }, [users])
+
   const handleSingleDelete = (e) => {
     const toBeDeletedId = e.currentTarget.value
     setUsers((currUsers) => {
@@ -31,15 +45,10 @@ function Users() {
 
   const handleCheck = (e) => {
     const toBeUpdatedId = e.target.value
-    if (e.target.checked) {
-      setCntChecked((prevCntChecked) => prevCntChecked + 1)
-    } else {
-      setCntChecked((prevCntChecked) => prevCntChecked - 1)
-    }
     setUsers((currUsers) => {
       return currUsers.map((user) => {
         return user.id === toBeUpdatedId
-          ? { ...user, isChecked: e.target.checked }
+          ? { ...user, isChecked: !user.isChecked }
           : user
       })
     })
@@ -49,7 +58,11 @@ function Users() {
     setUsers((currUsers) => {
       return currUsers.filter((user) => !user.isChecked)
     })
-    setCntChecked(0)
+    setSelectAll(false)
+  }
+
+  const handleSelectAll = () => {
+    setSelectAll((prev) => !prev)
   }
 
   return (
@@ -65,38 +78,41 @@ function Users() {
 
       <table className="table">
         <thead>
-          <tr>
-            <th className="table__header">
+          <tr className="table__row">
+            <th className="table__header table__data">
               <input
                 type="checkbox"
                 id="vehicle1"
                 name="vehicle1"
                 value="Bike"
+                onChange={handleSelectAll}
+                checked={selectAll}
               />
             </th>
-            <th className="table__header">Name</th>
-            <th className="table__header">Email</th>
-            <th className="table__header">Role</th>
-            <th className="table__header">Actions</th>
+            <th className="table__header table__data">Name</th>
+            <th className="table__header table__data">Email</th>
+            <th className="table__header table__data">Role</th>
+            <th className="table__header table__data">Actions</th>
           </tr>
         </thead>
-        {users.map(({ id, name, email, role }) => {
+        {users.map(({ id, name, email, role, isChecked }) => {
           return (
             <tbody key={id}>
-              <tr>
-                <td>
+              <tr className="table__row">
+                <td className="table__data">
                   <input
                     type="checkbox"
                     id="vehicle1"
                     name="vehicle1"
                     value={id}
                     onChange={handleCheck}
+                    checked={isChecked}
                   />
                 </td>
-                <td>{name}</td>
-                <td>{email}</td>
-                <td>{role}</td>
-                <td className="table__action">
+                <td className="table__data">{name}</td>
+                <td className="table__data">{email}</td>
+                <td className="table__data">{role}</td>
+                <td className="table__data table__action">
                   <button className="table__btn table__edit-btn" type="button">
                     <ModeEditOutlineOutlinedIcon />
                   </button>
