@@ -13,13 +13,17 @@
     align-items: center;
 }
 
-.table__icon{
+.table__btn{
     cursor: pointer;
+    border: none;
+    background-color: #fff;
+    padding: 0;
+    margin: 0;
 }
 
-.table__edit-icon{
+.table__edit-btn{
     
 }
-.table__delete-icon{
+.table__delete-btn{
     color: red;
 }

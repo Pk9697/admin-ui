@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import { useEffect, useState } from 'react'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined'
@@ -14,6 +16,14 @@ function Users() {
     }
     getUsers()
   }, [])
+
+  const handleSingleDelete = (e) => {
+    const toBeDeletedId = e.currentTarget.value
+    setUsers((currUsers) => {
+      return currUsers.filter((user) => user.id !== toBeDeletedId)
+    })
+  }
+
   return (
     <div className="users-container">
       <table className="table">
@@ -49,12 +59,17 @@ function Users() {
                 <td>{email}</td>
                 <td>{role}</td>
                 <td className="table__action">
-                  <div className="table__icon table__edit-icon">
+                  <button className="table__btn table__edit-btn" type="button">
                     <ModeEditOutlineOutlinedIcon />
-                  </div>
-                  <div className="table__icon table__delete-icon">
+                  </button>
+                  <button
+                    className="table__btn table__delete-btn"
+                    onClick={handleSingleDelete}
+                    value={id}
+                    type="button"
+                  >
                     <DeleteOutlinedIcon />
-                  </div>
+                  </button>
                 </td>
               </tr>
             </tbody>
