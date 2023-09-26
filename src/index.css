@@ -1,0 +1,25 @@
+.table{
+    width: 100%;
+    border: 1px solid black;
+}
+
+.table__header{
+    text-align: left;
+}
+
+.table__action{
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+}
+
+.table__icon{
+    cursor: pointer;
+}
+
+.table__edit-icon{
+    
+}
+.table__delete-icon{
+    color: red;
+}
