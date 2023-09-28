@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
-import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined'
+import User from '../components/User'
 
 function Users() {
   const [users, setUsers] = useState([])
@@ -36,15 +35,15 @@ function Users() {
     setCntChecked(cnt)
   }, [users])
 
-  const handleSingleDelete = (e) => {
-    const toBeDeletedId = e.currentTarget.value
+  const handleSingleDelete = (id) => {
+    const toBeDeletedId = id
     setUsers((currUsers) => {
       return currUsers.filter((user) => user.id !== toBeDeletedId)
     })
   }
 
-  const handleCheck = (e) => {
-    const toBeUpdatedId = e.target.value
+  const handleCheck = (id) => {
+    const toBeUpdatedId = id
     setUsers((currUsers) => {
       return currUsers.map((user) => {
         return user.id === toBeUpdatedId
@@ -65,6 +64,15 @@ function Users() {
     setSelectAll((prev) => !prev)
   }
 
+  const handleSubmit = (e, formData) => {
+    e.preventDefault()
+    setUsers((currUsers) => {
+      return currUsers.map((user) => {
+        return user.id === formData.id ? { ...user, ...formData } : user
+      })
+    })
+  }
+
   return (
     <div className="users-container">
       <button
@@ -76,60 +84,34 @@ function Users() {
         Delete Selected
       </button>
 
-      <table className="table">
-        <thead>
-          <tr className="table__row">
-            <th className="table__header table__data">
+      <div className="table">
+        <div>
+          <div className="table__row">
+            <div className="table__header table__data">
               <input
                 type="checkbox"
-                id="vehicle1"
-                name="vehicle1"
-                value="Bike"
                 onChange={handleSelectAll}
                 checked={selectAll}
               />
-            </th>
-            <th className="table__header table__data">Name</th>
-            <th className="table__header table__data">Email</th>
-            <th className="table__header table__data">Role</th>
-            <th className="table__header table__data">Actions</th>
-          </tr>
-        </thead>
-        {users.map(({ id, name, email, role, isChecked }) => {
+            </div>
+            <div className="table__header table__data">Name</div>
+            <div className="table__header table__data">Email</div>
+            <div className="table__header table__data">Role</div>
+            <div className="table__header table__data">Actions</div>
+          </div>
+        </div>
+        {users.map((user) => {
           return (
-            <tbody key={id}>
-              <tr className="table__row">
-                <td className="table__data">
-                  <input
-                    type="checkbox"
-                    id="vehicle1"
-                    name="vehicle1"
-                    value={id}
-                    onChange={handleCheck}
-                    checked={isChecked}
-                  />
-                </td>
-                <td className="table__data">{name}</td>
-                <td className="table__data">{email}</td>
-                <td className="table__data">{role}</td>
-                <td className="table__data table__action">
-                  <button className="table__btn table__edit-btn" type="button">
-                    <ModeEditOutlineOutlinedIcon />
-                  </button>
-                  <button
-                    className="table__btn table__delete-btn"
-                    onClick={handleSingleDelete}
-                    value={id}
-                    type="button"
-                  >
-                    <DeleteOutlinedIcon />
-                  </button>
-                </td>
-              </tr>
-            </tbody>
+            <User
+              key={user.id}
+              user={user}
+              handleCheck={handleCheck}
+              handleSingleDelete={handleSingleDelete}
+              handleSubmit={handleSubmit}
+            />
           )
         })}
-      </table>
+      </div>
     </div>
   )
 }
