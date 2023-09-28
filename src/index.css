@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -100,4 +104,10 @@ button:disabled:hover {
 
 .bc-grey {
   background-color: lightgray;
+}
+
+
+.search{
+  width: 100%;
+  padding: 0.5em 1.25em;
 }

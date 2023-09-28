@@ -40,5 +40,6 @@ module.exports = {
     'react/prop-types': 0,
     'react/jsx-props-no-spreading': 0,
     'comma-dangle': 0,
+    'react-hooks/exhaustive-deps': 0,
   },
 }

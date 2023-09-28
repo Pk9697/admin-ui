@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import User from '../components/User'
+import UsersList from '../components/UsersList'
 
 function Users() {
   const [users, setUsers] = useState([])
   const [cntChecked, setCntChecked] = useState(0)
   const [selectAll, setSelectAll] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const [filteredUsers, setFilteredUsers] = useState([])
 
   useEffect(() => {
     const getUsers = () => {
@@ -34,6 +36,26 @@ function Users() {
     }, 0)
     setCntChecked(cnt)
   }, [users])
+
+  useEffect(() => {
+    const updateUsers = () => {
+      if (searchText) {
+        setFilteredUsers(
+          users.filter(({ name, email, role }) => {
+            return (
+              name.toLowerCase().includes(searchText.toLowerCase()) ||
+              email.toLowerCase().includes(searchText.toLowerCase()) ||
+              role.toLowerCase().includes(searchText.toLowerCase())
+            )
+          })
+        )
+      } else {
+        setFilteredUsers(users)
+      }
+    }
+
+    updateUsers()
+  }, [searchText])
 
   const handleSingleDelete = (id) => {
     const toBeDeletedId = id
@@ -73,8 +95,20 @@ function Users() {
     })
   }
 
+  const handleSearch = (e) => {
+    setSearchText(e.target.value)
+  }
+
   return (
     <div className="users-container">
+      <input
+        className="search"
+        type="text"
+        placeholder="Search by name email or role"
+        value={searchText}
+        onChange={handleSearch}
+      />
+
       <button
         className="delete-btn"
         type="button"
@@ -84,34 +118,13 @@ function Users() {
         Delete Selected
       </button>
 
-      <div className="table">
-        <div>
-          <div className="table__row">
-            <div className="table__header table__data">
-              <input
-                type="checkbox"
-                onChange={handleSelectAll}
-                checked={selectAll}
-              />
-            </div>
-            <div className="table__header table__data">Name</div>
-            <div className="table__header table__data">Email</div>
-            <div className="table__header table__data">Role</div>
-            <div className="table__header table__data">Actions</div>
-          </div>
-        </div>
-        {users.map((user) => {
-          return (
-            <User
-              key={user.id}
-              user={user}
-              handleCheck={handleCheck}
-              handleSingleDelete={handleSingleDelete}
-              handleSubmit={handleSubmit}
-            />
-          )
-        })}
-      </div>
+      <UsersList
+        users={searchText.length ? filteredUsers : users}
+        handleCheck={handleCheck}
+        handleSingleDelete={handleSingleDelete}
+        handleSubmit={handleSubmit}
+        handleSelectAll={handleSelectAll}
+      />
     </div>
   )
 }
