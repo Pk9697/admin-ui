@@ -124,6 +124,7 @@ function Users() {
         handleSingleDelete={handleSingleDelete}
         handleSubmit={handleSubmit}
         handleSelectAll={handleSelectAll}
+        selectAll={selectAll}
       />
     </div>
   )
