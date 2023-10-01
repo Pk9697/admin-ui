@@ -49,38 +49,39 @@ function User({ user, handleCheck, handleSingleDelete, handleSubmit }) {
   }
   return (
     <>
-      <div key={user.id} className={`${user.isChecked ? 'bc-grey' : ''}`}>
-        <div className="table__row">
-          <div className="table__data">
-            <input
-              type="checkbox"
-              onChange={() => handleCheck(user.id)}
-              checked={user.isChecked}
-            />
-          </div>
-          <div className="table__data">{formData.name}</div>
-          <div className="table__data">{formData.email}</div>
-          <div className="table__data">{formData.role}</div>
-          <div className="table__data table__action">
-            <button
-              onClick={() => setInEditMode(true)}
-              className={`table__btn table__edit-btn ${
-                user.isChecked ? 'bc-grey' : ''
-              }`}
-              type="button"
-            >
-              <ModeEditOutlineOutlinedIcon />
-            </button>
-            <button
-              className={`table__btn table__delete-btn ${
-                user.isChecked ? 'bc-grey' : ''
-              }`}
-              onClick={() => handleSingleDelete(user.id)}
-              type="button"
-            >
-              <DeleteOutlinedIcon />
-            </button>
-          </div>
+      <div
+        key={user.id}
+        className={`table__row ${user.isChecked ? 'bc-grey' : ''}`}
+      >
+        <div className="table__data">
+          <input
+            type="checkbox"
+            onChange={() => handleCheck(user.id)}
+            checked={user.isChecked}
+          />
+        </div>
+        <div className="table__data">{formData.name}</div>
+        <div className="table__data">{formData.email}</div>
+        <div className="table__data">{formData.role}</div>
+        <div className="table__data table__action">
+          <button
+            onClick={() => setInEditMode(true)}
+            className={`table__btn table__edit-btn ${
+              user.isChecked ? 'bc-grey' : ''
+            }`}
+            type="button"
+          >
+            <ModeEditOutlineOutlinedIcon />
+          </button>
+          <button
+            className={`table__btn table__delete-btn ${
+              user.isChecked ? 'bc-grey' : ''
+            }`}
+            onClick={() => handleSingleDelete(user.id)}
+            type="button"
+          >
+            <DeleteOutlinedIcon />
+          </button>
         </div>
       </div>
       {inEditMode && (
