@@ -13,12 +13,6 @@ button {
 
 button:disabled {
   cursor: not-allowed;
-  background-color: rgb(250, 127, 127);
-}
-
-button:disabled:hover {
-  cursor: not-allowed;
-  background-color: rgb(250, 127, 127);
 }
 
 .users-container {
@@ -27,19 +21,6 @@ button:disabled:hover {
   flex-direction: column;
   align-items: start;
   gap: 1em;
-}
-
-.delete-btn {
-  padding: 0.5em 1.25em;
-  background-color: red;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 20px;
-}
-
-.delete-btn:hover {
-  background-color: green;
 }
 
 .table {
@@ -111,3 +92,46 @@ button:disabled:hover {
   width: 100%;
   padding: 0.5em 1.25em;
 }
+
+.pagination{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+}
+
+/* BUTTONS */
+
+.btn{
+  background-color: #1890ff;
+  color: white;
+  border:none;
+}
+
+.btn:disabled{
+  background-color: #f5f5f5;
+  color: grey;
+}
+
+.btn:hover,.active{
+  background-color: white;
+  color: #1890ff;
+  border: 1px solid #1890ff;
+}
+
+.pagination__btn{
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.delete-btn {
+  padding: 0.5em 1.25em;
+  font-weight: bold;
+  border-radius: 20px;
+}
+

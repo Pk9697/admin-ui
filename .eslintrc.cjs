@@ -41,5 +41,6 @@ module.exports = {
     'react/jsx-props-no-spreading': 0,
     'comma-dangle': 0,
     'react-hooks/exhaustive-deps': 0,
+    'react/no-array-index-key': 0,
   },
 }
