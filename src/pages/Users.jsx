@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import UsersList from '../components/UsersList'
 
 function Users() {
+  const [allUsers, setAllUsers] = useState([])
   const [users, setUsers] = useState([])
   const [cntChecked, setCntChecked] = useState(0)
   const [selectAll, setSelectAll] = useState(false)
   const [searchText, setSearchText] = useState('')
-  const [filteredUsers, setFilteredUsers] = useState([])
 
   useEffect(() => {
     const getUsers = () => {
@@ -16,6 +16,7 @@ function Users() {
         .then((res) => res.json())
         .then((data) => {
           const newUsers = data.map((user) => ({ ...user, isChecked: false }))
+          setAllUsers(newUsers)
           setUsers(newUsers)
         })
     }
@@ -23,9 +24,20 @@ function Users() {
   }, [])
 
   useEffect(() => {
-    setUsers((currUsers) => {
-      return currUsers.map((user) => {
+    setUsers((prevUsers) => {
+      return prevUsers.map((user) => {
         return { ...user, isChecked: selectAll }
+      })
+    })
+
+    const currentIdsInUsers = new Set()
+    users.forEach((user) => currentIdsInUsers.add(user.id))
+
+    setAllUsers((prevUsers) => {
+      return prevUsers.map((user) => {
+        return currentIdsInUsers.has(user.id)
+          ? { ...user, isChecked: selectAll }
+          : user
       })
     })
   }, [selectAll])
@@ -40,8 +52,8 @@ function Users() {
   useEffect(() => {
     const updateUsers = () => {
       if (searchText) {
-        setFilteredUsers(
-          users.filter(({ name, email, role }) => {
+        setUsers(
+          allUsers.filter(({ name, email, role }) => {
             return (
               name.toLowerCase().includes(searchText.toLowerCase()) ||
               email.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -50,7 +62,7 @@ function Users() {
           })
         )
       } else {
-        setFilteredUsers(users)
+        setUsers(users)
       }
     }
 
@@ -59,15 +71,25 @@ function Users() {
 
   const handleSingleDelete = (id) => {
     const toBeDeletedId = id
-    setUsers((currUsers) => {
-      return currUsers.filter((user) => user.id !== toBeDeletedId)
+    setUsers((prevUsers) => {
+      return prevUsers.filter((user) => user.id !== toBeDeletedId)
+    })
+    setAllUsers((prevUsers) => {
+      return prevUsers.filter((user) => user.id !== toBeDeletedId)
     })
   }
 
   const handleCheck = (id) => {
     const toBeUpdatedId = id
-    setUsers((currUsers) => {
-      return currUsers.map((user) => {
+    setUsers((prevUsers) => {
+      return prevUsers.map((user) => {
+        return user.id === toBeUpdatedId
+          ? { ...user, isChecked: !user.isChecked }
+          : user
+      })
+    })
+    setAllUsers((prevUsers) => {
+      return prevUsers.map((user) => {
         return user.id === toBeUpdatedId
           ? { ...user, isChecked: !user.isChecked }
           : user
@@ -76,8 +98,11 @@ function Users() {
   }
 
   const handleDeleteSelected = () => {
-    setUsers((currUsers) => {
-      return currUsers.filter((user) => !user.isChecked)
+    setUsers((prevUsers) => {
+      return prevUsers.filter((user) => !user.isChecked)
+    })
+    setAllUsers((prevUsers) => {
+      return prevUsers.filter((user) => !user.isChecked)
     })
     setSelectAll(false)
   }
@@ -88,8 +113,13 @@ function Users() {
 
   const handleSubmit = (e, formData) => {
     e.preventDefault()
-    setUsers((currUsers) => {
-      return currUsers.map((user) => {
+    setUsers((prevUsers) => {
+      return prevUsers.map((user) => {
+        return user.id === formData.id ? { ...user, ...formData } : user
+      })
+    })
+    setAllUsers((prevUsers) => {
+      return prevUsers.map((user) => {
         return user.id === formData.id ? { ...user, ...formData } : user
       })
     })
@@ -119,7 +149,7 @@ function Users() {
       </button>
 
       <UsersList
-        users={searchText.length ? filteredUsers : users}
+        users={users}
         handleCheck={handleCheck}
         handleSingleDelete={handleSingleDelete}
         handleSubmit={handleSubmit}
