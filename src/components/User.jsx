@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined'
+import Modal from './Modal'
 
 function User({ user, handleCheck, handleSingleDelete, handleSubmit }) {
   const [inEditMode, setInEditMode] = useState(false)
@@ -85,37 +86,12 @@ function User({ user, handleCheck, handleSingleDelete, handleSubmit }) {
         </div>
       </div>
       {inEditMode && (
-        <div className="modal">
-          <div className="modal__content">
-            <button onClick={handleClose} type="button">
-              Close
-            </button>
-            <form onSubmit={handleFormSubmit}>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="text"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                required
-              />
-              <button type="submit">Save</button>
-            </form>
-          </div>
-        </div>
+        <Modal
+          formData={formData}
+          handleClose={handleClose}
+          handleFormSubmit={handleFormSubmit}
+          handleChange={handleChange}
+        />
       )}
     </>
   )

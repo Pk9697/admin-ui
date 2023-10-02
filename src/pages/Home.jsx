@@ -1,24 +1,20 @@
 import { useEffect, useState } from 'react'
-import KeyboardDoubleArrowLeftOutlinedIcon from '@mui/icons-material/KeyboardDoubleArrowLeftOutlined'
-import KeyboardDoubleArrowRightOutlinedIcon from '@mui/icons-material/KeyboardDoubleArrowRightOutlined'
-import KeyboardArrowLeftOutlinedIcon from '@mui/icons-material/KeyboardArrowLeftOutlined'
-import KeyboardArrowRightOutlinedIcon from '@mui/icons-material/KeyboardArrowRightOutlined'
 import UsersList from '../components/UsersList'
+import Pagination from '../components/Pagination'
+import SearchInput from '../components/SearchInput'
+import DeleteSelectedButton from '../components/DeleteSelectedButton'
 
-function Users() {
+function Home() {
   const [allUsers, setAllUsers] = useState([])
   const [users, setUsers] = useState([])
   const [cntChecked, setCntChecked] = useState(0)
   const [selectAll, setSelectAll] = useState(false)
   const [searchText, setSearchText] = useState('')
-
   const [currentPage, setCurrentPage] = useState(1)
   const recordsPerPage = 10
   const lastIndexOfPage = currentPage * recordsPerPage
   const firstIndexOfPage = lastIndexOfPage - recordsPerPage
   const records = users.slice(firstIndexOfPage, lastIndexOfPage)
-  const totalPages = Math.ceil(users.length / recordsPerPage)
-  const numbers = [...Array(totalPages + 1).keys()].slice(1)
 
   useEffect(() => {
     const getUsers = () => {
@@ -163,22 +159,12 @@ function Users() {
 
   return (
     <div className="users-container">
-      <input
-        className="search"
-        type="text"
-        placeholder="Search by name email or role"
-        value={searchText}
-        onChange={handleSearch}
-      />
+      <SearchInput searchText={searchText} handleSearch={handleSearch} />
 
-      <button
-        className="delete-btn"
-        type="button"
-        onClick={handleDeleteSelected}
-        disabled={cntChecked === 0}
-      >
-        Delete Selected
-      </button>
+      <DeleteSelectedButton
+        cntChecked={cntChecked}
+        handleDeleteSelected={handleDeleteSelected}
+      />
 
       <UsersList
         users={records}
@@ -189,55 +175,14 @@ function Users() {
         selectAll={selectAll}
       />
 
-      <div className="pagination">
-        <button
-          className="btn pagination__btn"
-          onClick={() => handleChangePage(1)}
-          disabled={currentPage === 1 || users.length === 0}
-          type="button"
-        >
-          <KeyboardDoubleArrowLeftOutlinedIcon />
-        </button>
-        <button
-          className="btn pagination__btn"
-          onClick={() => handleChangePage(currentPage - 1)}
-          disabled={currentPage === 1 || users.length === 0}
-          type="button"
-        >
-          <KeyboardArrowLeftOutlinedIcon />
-        </button>
-        {numbers.map((page, index) => (
-          <button
-            key={`page-${index}`}
-            className={`btn pagination__btn ${
-              currentPage === page ? 'active' : ''
-            }`}
-            onClick={() => handleChangePage(page)}
-            disabled={currentPage === page || users.length === 0}
-            type="button"
-          >
-            {page}
-          </button>
-        ))}
-        <button
-          className="btn pagination__btn"
-          onClick={() => handleChangePage(currentPage + 1)}
-          disabled={currentPage === totalPages || users.length === 0}
-          type="button"
-        >
-          <KeyboardArrowRightOutlinedIcon />
-        </button>
-        <button
-          className="btn pagination__btn"
-          onClick={() => handleChangePage(totalPages)}
-          disabled={currentPage === totalPages || users.length === 0}
-          type="button"
-        >
-          <KeyboardDoubleArrowRightOutlinedIcon />
-        </button>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        recordsPerPage={recordsPerPage}
+        users={users}
+        handleChangePage={handleChangePage}
+      />
     </div>
   )
 }
 
-export default Users
+export default Home
