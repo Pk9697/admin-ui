@@ -1,20 +1,44 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import UsersList from '../components/UsersList'
 import Pagination from '../components/Pagination'
 import SearchInput from '../components/SearchInput'
 import DeleteSelectedButton from '../components/DeleteSelectedButton'
 
 function Home() {
-  const [allUsers, setAllUsers] = useState([])
   const [users, setUsers] = useState([])
-  const [cntChecked, setCntChecked] = useState(0)
   const [selectAll, setSelectAll] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [filteredUsersIds, setFilteredUsersIds] = useState([])
+  const filteredUsers = useMemo(
+    () =>
+      users.filter((user) =>
+        filteredUsersIds.some((fUser) => fUser === user.id)
+      ),
+    [users, filteredUsersIds]
+  )
+
+  const cntChecked = useMemo(
+    () =>
+      users.reduce((acc, user) => {
+        return user.isChecked ? acc + 1 : acc
+      }, 0),
+    [users]
+  )
+
   const recordsPerPage = 10
-  const lastIndexOfPage = currentPage * recordsPerPage
-  const firstIndexOfPage = lastIndexOfPage - recordsPerPage
-  const records = users.slice(firstIndexOfPage, lastIndexOfPage)
+  const lastIndexOfPage = useMemo(
+    () => currentPage * recordsPerPage,
+    [currentPage]
+  )
+  const firstIndexOfPage = useMemo(
+    () => lastIndexOfPage - recordsPerPage,
+    [lastIndexOfPage]
+  )
+  const records = useMemo(
+    () => filteredUsers.slice(firstIndexOfPage, lastIndexOfPage),
+    [filteredUsers, firstIndexOfPage, lastIndexOfPage]
+  )
 
   useEffect(() => {
     const getUsers = () => {
@@ -24,7 +48,8 @@ function Home() {
         .then((res) => res.json())
         .then((data) => {
           const newUsers = data.map((user) => ({ ...user, isChecked: false }))
-          setAllUsers(newUsers)
+          const newUserIds = data.map((user) => user.id)
+          setFilteredUsersIds(newUserIds)
           setUsers(newUsers)
         })
     }
@@ -33,51 +58,30 @@ function Home() {
 
   useEffect(() => {
     setUsers((prevUsers) => {
-      return prevUsers.map((user, index) => {
-        return firstIndexOfPage <= index && index + 1 <= lastIndexOfPage
+      return prevUsers.map((user) =>
+        records.some((rUser) => rUser.id === user.id)
           ? { ...user, isChecked: selectAll }
           : user
-      })
-    })
-
-    const currentIdsInUsers = new Set()
-
-    users.forEach((user, index) => {
-      if (firstIndexOfPage <= index && index + 1 <= lastIndexOfPage) {
-        currentIdsInUsers.add(user.id)
-      }
-    })
-
-    setAllUsers((prevUsers) => {
-      return prevUsers.map((user) => {
-        return currentIdsInUsers.has(user.id)
-          ? { ...user, isChecked: selectAll }
-          : user
-      })
+      )
     })
   }, [selectAll])
 
   useEffect(() => {
-    const cnt = users.reduce((acc, user) => {
-      return user.isChecked ? acc + 1 : acc
-    }, 0)
-    setCntChecked(cnt)
-  }, [users])
-
-  useEffect(() => {
     const updateUsers = () => {
       if (searchText) {
-        setUsers(
-          allUsers.filter(({ name, email, role }) => {
-            return (
-              name.toLowerCase().includes(searchText.toLowerCase()) ||
-              email.toLowerCase().includes(searchText.toLowerCase()) ||
-              role.toLowerCase().includes(searchText.toLowerCase())
-            )
-          })
+        setFilteredUsersIds(
+          users.reduce(
+            (acc, user) =>
+              user.name.toLowerCase().includes(searchText.toLowerCase()) ||
+              user.email.toLowerCase().includes(searchText.toLowerCase()) ||
+              user.role.toLowerCase().includes(searchText.toLowerCase())
+                ? [...acc, user.id]
+                : acc,
+            []
+          )
         )
       } else {
-        setUsers(allUsers)
+        setFilteredUsersIds(users.map((user) => user.id))
         setCurrentPage(1)
       }
     }
@@ -86,38 +90,21 @@ function Home() {
   }, [searchText])
 
   const handleSingleDelete = (id) => {
-    const toBeDeletedId = id
     setUsers((prevUsers) => {
-      return prevUsers.filter((user) => user.id !== toBeDeletedId)
-    })
-    setAllUsers((prevUsers) => {
-      return prevUsers.filter((user) => user.id !== toBeDeletedId)
+      return prevUsers.filter((user) => user.id !== id)
     })
   }
 
   const handleCheck = (id) => {
-    const toBeUpdatedId = id
     setUsers((prevUsers) => {
-      return prevUsers.map((user) => {
-        return user.id === toBeUpdatedId
-          ? { ...user, isChecked: !user.isChecked }
-          : user
-      })
-    })
-    setAllUsers((prevUsers) => {
-      return prevUsers.map((user) => {
-        return user.id === toBeUpdatedId
-          ? { ...user, isChecked: !user.isChecked }
-          : user
-      })
+      return prevUsers.map((user) =>
+        user.id === id ? { ...user, isChecked: !user.isChecked } : user
+      )
     })
   }
 
   const handleDeleteSelected = () => {
     setUsers((prevUsers) => {
-      return prevUsers.filter((user) => !user.isChecked)
-    })
-    setAllUsers((prevUsers) => {
       return prevUsers.filter((user) => !user.isChecked)
     })
 
@@ -136,14 +123,9 @@ function Home() {
   const handleSubmit = (e, formData) => {
     e.preventDefault()
     setUsers((prevUsers) => {
-      return prevUsers.map((user) => {
-        return user.id === formData.id ? { ...user, ...formData } : user
-      })
-    })
-    setAllUsers((prevUsers) => {
-      return prevUsers.map((user) => {
-        return user.id === formData.id ? { ...user, ...formData } : user
-      })
+      return prevUsers.map((user) =>
+        user.id === formData.id ? { ...user, ...formData } : user
+      )
     })
   }
 
@@ -178,7 +160,7 @@ function Home() {
       <Pagination
         currentPage={currentPage}
         recordsPerPage={recordsPerPage}
-        users={users}
+        users={filteredUsers}
         handleChangePage={handleChangePage}
       />
     </div>
