@@ -32,7 +32,7 @@ function Pagination({ currentPage, users, recordsPerPage, dispatch }) {
             currentPage === page ? 'active' : ''
           }`}
           onClick={() => dispatch(changePage(page))}
-          // disabled={currentPage === page || users.length === 0}
+          disabled={currentPage === page || users.length === 0}
           type="button"
         >
           {page}
