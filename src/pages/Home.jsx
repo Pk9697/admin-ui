@@ -1,15 +1,128 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import UsersList from '../components/UsersList'
 import Pagination from '../components/Pagination'
 import SearchInput from '../components/SearchInput'
 import DeleteSelectedButton from '../components/DeleteSelectedButton'
+import {
+  TOGGLE_SELECT_ALL,
+  SET_SEARCH_TEXT,
+  SET_USERS,
+  SET_CURRENT_PAGE,
+  SET_FILTERED_USER_IDS,
+  DELETE_USER,
+  TOGGLE_CHECK_USER,
+  DELETE_CHECKED_USERS,
+  EDIT_USER,
+  UPDATE_FILTERED_USER_IDS,
+  UPDATE_FILTERED_USER_IDS_WITH_ALL_USERS,
+  CHANGE_PAGE,
+} from '../actions/actionTypes'
+import {
+  changePage,
+  fetchUsers,
+  onSelectAllChange,
+  updateFilteredUsersIds,
+  updateFilteredUsersIdsWithAllUserIds,
+} from '../actions'
 
 function Home() {
-  const [users, setUsers] = useState([])
-  const [selectAll, setSelectAll] = useState(false)
-  const [searchText, setSearchText] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [filteredUsersIds, setFilteredUsersIds] = useState([])
+  const [state, dispatch] = useReducer(
+    (currState, action) => {
+      switch (action.type) {
+        case SET_USERS: {
+          return { ...currState, users: action.payload }
+        }
+        case DELETE_USER: {
+          return {
+            ...currState,
+            users: currState.users.filter((user) => user.id !== action.payload),
+          }
+        }
+        case DELETE_CHECKED_USERS: {
+          return {
+            ...currState,
+            users: currState.users.filter((user) => !user.isChecked),
+          }
+        }
+        case TOGGLE_CHECK_USER: {
+          return {
+            ...currState,
+            users: currState.users.map((user) =>
+              user.id === action.payload
+                ? { ...user, isChecked: !user.isChecked }
+                : user
+            ),
+          }
+        }
+        case EDIT_USER: {
+          return {
+            ...currState,
+            users: currState.users.map((user) =>
+              user.id === action.payload.id
+                ? { ...user, ...action.payload }
+                : user
+            ),
+          }
+        }
+        case TOGGLE_SELECT_ALL: {
+          return { ...currState, selectAll: !currState.selectAll }
+        }
+        case SET_SEARCH_TEXT: {
+          return { ...currState, searchText: action.payload }
+        }
+        case SET_CURRENT_PAGE: {
+          return { ...currState, currentPage: action.payload }
+        }
+        case SET_FILTERED_USER_IDS: {
+          return { ...currState, filteredUsersIds: action.payload }
+        }
+        case UPDATE_FILTERED_USER_IDS: {
+          return {
+            ...currState,
+            filteredUsersIds: currState.users.reduce(
+              (acc, user) =>
+                user.name
+                  .toLowerCase()
+                  .includes(currState.searchText.toLowerCase()) ||
+                user.email
+                  .toLowerCase()
+                  .includes(currState.searchText.toLowerCase()) ||
+                user.role
+                  .toLowerCase()
+                  .includes(currState.searchText.toLowerCase())
+                  ? [...acc, user.id]
+                  : acc,
+              []
+            ),
+          }
+        }
+        case UPDATE_FILTERED_USER_IDS_WITH_ALL_USERS: {
+          return {
+            ...currState,
+            filteredUsersIds: currState.users.map((user) => user.id),
+          }
+        }
+        case CHANGE_PAGE: {
+          return {
+            ...currState,
+            currentPage: action.payload,
+          }
+        }
+        default:
+          return currState
+      }
+    },
+    {
+      users: [],
+      selectAll: false,
+      searchText: '',
+      currentPage: 1,
+      filteredUsersIds: [],
+    }
+  )
+
+  const { users, selectAll, searchText, currentPage, filteredUsersIds } = state
+
   const filteredUsers = useMemo(
     () =>
       users.filter((user) =>
@@ -41,127 +154,43 @@ function Home() {
   )
 
   useEffect(() => {
-    const getUsers = () => {
-      const url =
-        'https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json'
-      fetch(url)
-        .then((res) => res.json())
-        .then((data) => {
-          const newUsers = data.map((user) => ({ ...user, isChecked: false }))
-          const newUserIds = data.map((user) => user.id)
-          setFilteredUsersIds(newUserIds)
-          setUsers(newUsers)
-        })
-    }
-    getUsers()
+    fetchUsers(dispatch)
   }, [])
 
   useEffect(() => {
-    setUsers((prevUsers) => {
-      return prevUsers.map((user) =>
-        records.some((rUser) => rUser.id === user.id)
-          ? { ...user, isChecked: selectAll }
-          : user
-      )
-    })
+    onSelectAllChange(users, records, selectAll, dispatch)
   }, [selectAll])
 
   useEffect(() => {
     const updateUsers = () => {
       if (searchText) {
-        setFilteredUsersIds(
-          users.reduce(
-            (acc, user) =>
-              user.name.toLowerCase().includes(searchText.toLowerCase()) ||
-              user.email.toLowerCase().includes(searchText.toLowerCase()) ||
-              user.role.toLowerCase().includes(searchText.toLowerCase())
-                ? [...acc, user.id]
-                : acc,
-            []
-          )
-        )
+        dispatch(updateFilteredUsersIds())
       } else {
-        setFilteredUsersIds(users.map((user) => user.id))
-        setCurrentPage(1)
+        dispatch(updateFilteredUsersIdsWithAllUserIds())
+        dispatch(changePage(1))
       }
     }
 
     updateUsers()
   }, [searchText])
 
-  const handleSingleDelete = (id) => {
-    setUsers((prevUsers) => {
-      return prevUsers.filter((user) => user.id !== id)
-    })
-  }
-
-  const handleCheck = (id) => {
-    setUsers((prevUsers) => {
-      return prevUsers.map((user) =>
-        user.id === id ? { ...user, isChecked: !user.isChecked } : user
-      )
-    })
-  }
-
-  const handleDeleteSelected = () => {
-    setUsers((prevUsers) => {
-      return prevUsers.filter((user) => !user.isChecked)
-    })
-
-    if (selectAll) {
-      setCurrentPage(1)
-      setSearchText('')
-    }
-
-    setSelectAll(false)
-  }
-
-  const handleSelectAll = () => {
-    setSelectAll((prev) => !prev)
-  }
-
-  const handleSubmit = (e, formData) => {
-    e.preventDefault()
-    setUsers((prevUsers) => {
-      return prevUsers.map((user) =>
-        user.id === formData.id ? { ...user, ...formData } : user
-      )
-    })
-  }
-
-  const handleSearch = (e) => {
-    setSearchText(e.target.value)
-  }
-
-  const handleChangePage = (page) => {
-    setCurrentPage((prev) => {
-      return prev !== page ? page : prev
-    })
-  }
-
   return (
     <div className="users-container">
-      <SearchInput searchText={searchText} handleSearch={handleSearch} />
+      <SearchInput searchText={searchText} dispatch={dispatch} />
 
       <DeleteSelectedButton
         cntChecked={cntChecked}
-        handleDeleteSelected={handleDeleteSelected}
+        selectAll={selectAll}
+        dispatch={dispatch}
       />
 
-      <UsersList
-        users={records}
-        handleCheck={handleCheck}
-        handleSingleDelete={handleSingleDelete}
-        handleSubmit={handleSubmit}
-        handleSelectAll={handleSelectAll}
-        selectAll={selectAll}
-      />
+      <UsersList users={records} dispatch={dispatch} selectAll={selectAll} />
 
       <Pagination
         currentPage={currentPage}
         recordsPerPage={recordsPerPage}
         users={filteredUsers}
-        handleChangePage={handleChangePage}
+        dispatch={dispatch}
       />
     </div>
   )

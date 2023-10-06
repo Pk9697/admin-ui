@@ -1,20 +1,14 @@
+import { toggleSelectAll } from '../actions'
 import User from './User'
 
-function UsersList({
-  users,
-  handleCheck,
-  handleSingleDelete,
-  handleSubmit,
-  handleSelectAll,
-  selectAll,
-}) {
+function UsersList({ users, selectAll, dispatch }) {
   return (
     <div className="table">
       <div className="table__row">
         <div className="table__header table__data">
           <input
             type="checkbox"
-            onChange={handleSelectAll}
+            onChange={() => dispatch(toggleSelectAll())}
             checked={selectAll}
           />
         </div>
@@ -24,15 +18,7 @@ function UsersList({
         <div className="table__header table__data">Actions</div>
       </div>
       {users.map((user) => {
-        return (
-          <User
-            key={user.id}
-            user={user}
-            handleCheck={handleCheck}
-            handleSingleDelete={handleSingleDelete}
-            handleSubmit={handleSubmit}
-          />
-        )
+        return <User key={user.id} user={user} dispatch={dispatch} />
       })}
     </div>
   )

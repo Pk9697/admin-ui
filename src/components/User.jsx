@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined'
 import Modal from './Modal'
+import { deleteUser, editUser, toggleCheckUser } from '../actions'
 
-function User({ user, handleCheck, handleSingleDelete, handleSubmit }) {
+function User({ user, dispatch }) {
   const [inEditMode, setInEditMode] = useState(false)
   const [formData, setFormData] = useState({
     id: '',
@@ -45,7 +46,9 @@ function User({ user, handleCheck, handleSingleDelete, handleSubmit }) {
   }
 
   const handleFormSubmit = (e) => {
-    handleSubmit(e, formData)
+    e.preventDefault()
+    // handleSubmit(e, formData)
+    dispatch(editUser(formData))
     setInEditMode(false)
   }
   return (
@@ -57,7 +60,7 @@ function User({ user, handleCheck, handleSingleDelete, handleSubmit }) {
         <div className="table__data">
           <input
             type="checkbox"
-            onChange={() => handleCheck(user.id)}
+            onChange={() => dispatch(toggleCheckUser(user.id))}
             checked={user.isChecked}
           />
         </div>
@@ -78,7 +81,7 @@ function User({ user, handleCheck, handleSingleDelete, handleSubmit }) {
             className={`table__btn table__delete-btn ${
               user.isChecked ? 'bc-grey' : ''
             }`}
-            onClick={() => handleSingleDelete(user.id)}
+            onClick={() => dispatch(deleteUser(user.id))}
             type="button"
           >
             <DeleteOutlinedIcon />

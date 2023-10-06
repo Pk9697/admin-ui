@@ -2,15 +2,16 @@ import KeyboardDoubleArrowLeftOutlinedIcon from '@mui/icons-material/KeyboardDou
 import KeyboardDoubleArrowRightOutlinedIcon from '@mui/icons-material/KeyboardDoubleArrowRightOutlined'
 import KeyboardArrowLeftOutlinedIcon from '@mui/icons-material/KeyboardArrowLeftOutlined'
 import KeyboardArrowRightOutlinedIcon from '@mui/icons-material/KeyboardArrowRightOutlined'
+import { changePage } from '../actions'
 
-function Pagination({ currentPage, users, handleChangePage, recordsPerPage }) {
+function Pagination({ currentPage, users, recordsPerPage, dispatch }) {
   const totalPages = Math.ceil(users.length / recordsPerPage)
   const numbers = [...Array(totalPages + 1).keys()].slice(1)
   return (
     <div className="pagination">
       <button
         className="btn pagination__btn"
-        onClick={() => handleChangePage(1)}
+        onClick={() => dispatch(changePage(1))}
         disabled={currentPage === 1 || users.length === 0}
         type="button"
       >
@@ -18,7 +19,7 @@ function Pagination({ currentPage, users, handleChangePage, recordsPerPage }) {
       </button>
       <button
         className="btn pagination__btn"
-        onClick={() => handleChangePage(currentPage - 1)}
+        onClick={() => dispatch(changePage(currentPage - 1))}
         disabled={currentPage === 1 || users.length === 0}
         type="button"
       >
@@ -30,8 +31,8 @@ function Pagination({ currentPage, users, handleChangePage, recordsPerPage }) {
           className={`btn pagination__btn ${
             currentPage === page ? 'active' : ''
           }`}
-          onClick={() => handleChangePage(page)}
-          disabled={currentPage === page || users.length === 0}
+          onClick={() => dispatch(changePage(page))}
+          // disabled={currentPage === page || users.length === 0}
           type="button"
         >
           {page}
@@ -39,7 +40,7 @@ function Pagination({ currentPage, users, handleChangePage, recordsPerPage }) {
       ))}
       <button
         className="btn pagination__btn"
-        onClick={() => handleChangePage(currentPage + 1)}
+        onClick={() => dispatch(changePage(currentPage + 1))}
         disabled={currentPage === totalPages || users.length === 0}
         type="button"
       >
@@ -47,7 +48,7 @@ function Pagination({ currentPage, users, handleChangePage, recordsPerPage }) {
       </button>
       <button
         className="btn pagination__btn"
-        onClick={() => handleChangePage(totalPages)}
+        onClick={() => dispatch(changePage(totalPages))}
         disabled={currentPage === totalPages || users.length === 0}
         type="button"
       >
